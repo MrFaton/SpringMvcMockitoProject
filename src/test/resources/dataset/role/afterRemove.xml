@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dataset SYSTEM "traineeship_db.dtd">
+<dataset>
+<ROLE ROLE_ID="1" NAME="role1"/>
+<ROLE ROLE_ID="3" NAME="role3"/>
+</dataset>

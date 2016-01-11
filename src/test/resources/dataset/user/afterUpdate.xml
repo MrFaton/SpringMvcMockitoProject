@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dataset SYSTEM "traineeship_db.dtd">
+<dataset>
+<USER USER_ID="1" LOGIN="login55" PASSWORD="pass55" EMAIL="email55"
+FIRST_NAME="firstName55" LAST_NAME="lastName55" BIRTH_DAY="1950-03-07" ROLE_ID="3"/>
+
+<USER USER_ID="2" LOGIN="login2" PASSWORD="pass2" EMAIL="email2"
+FIRST_NAME="firstName2" LAST_NAME="lastName2" BIRTH_DAY="1995-09-05" ROLE_ID="2"/>
+
+<USER USER_ID="3" LOGIN="login3" PASSWORD="pass3" EMAIL="email3"
+FIRST_NAME="firstName3" LAST_NAME="lastName3" BIRTH_DAY="1989-12-18" ROLE_ID="3"/>
+</dataset>

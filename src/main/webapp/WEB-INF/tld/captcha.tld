@@ -1,0 +1,33 @@
+<taglib xsi:schemaLocation="http://java.sun.com/xml/ns/javaee/web-jsptaglibrary_2_1.xsd"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="2.1">
+
+	<tlibversion>1.0</tlibversion>
+	<jspversion>2.1</jspversion>
+	<shortname>CaptcahTags</shortname>
+	<uri>http://SpringMvcProject</uri>
+	<info>Captcha Tags</info>
+
+	<tag>
+		<name>captcha</name>
+		<tagclass>com.nixsolutions.ponarin.tag.CaptchaTag</tagclass>
+		<bodycontent>empty</bodycontent>
+		<info>Generates Captcha Widget</info>
+		<attribute>
+			<name>publickey</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>privatekey</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>themeName</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+
+</taglib> 
