@@ -46,15 +46,28 @@ public class UsersTableTag extends SimpleTagSupport {
             strBuilder.append("<td>" + user.getRole().getName() + "</td>");
 
             strBuilder.append("<td>");
-            strBuilder.append("<a href=\"" + editControllerPath);
-            strBuilder.append("?person=" + user.getLogin() + "\">Edit</a>");
-
-            strBuilder.append("   ");
-
-            strBuilder.append("<a href=\"" + dbOperationControllerPath);
-            strBuilder.append("?person=" + user.getLogin() + "\"");
+            strBuilder.append("<form action=\"" + editControllerPath
+                    + "\" method=\"post\">");
+            strBuilder.append("<div>");
             strBuilder.append(
-                    "onclick=\"return confirm('Are you sure?');\">Delete</a>");
+                    "<input type=\"hidden\" name=\"action\" value=\"edit\"/>");
+            strBuilder.append("<input type=\"hidden\" name=\"person\" value=\""
+                    + user.getLogin() + "\"/>");
+            strBuilder.append("<input type=\"submit\" value=\"Edit\"/>");
+            strBuilder.append("</div>");
+            strBuilder.append("</form>");
+
+            strBuilder.append("<form action=\"" + dbOperationControllerPath
+                    + "\" method=\"post\">");
+            strBuilder.append("<div>");
+            strBuilder.append(
+                    "<input type=\"hidden\" name=\"action\" value=\"delete\"/>");
+            strBuilder.append("<input type=\"hidden\" name=\"person\" value=\""
+                    + user.getLogin() + "\"/>");
+            strBuilder.append("<input type=\"submit\" value=\"Delete\" "
+                    + "onclick=\"return confirm('Are you sure?');\"/>");
+            strBuilder.append("</div>");
+            strBuilder.append("</form>");
             strBuilder.append("</td>");
 
             strBuilder.append("</tr>");

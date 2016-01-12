@@ -18,7 +18,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
 @Entity
-@Table(name = "USER", schema = "TRAINEESHIP_DB")
+@Table(name = "USER")
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 

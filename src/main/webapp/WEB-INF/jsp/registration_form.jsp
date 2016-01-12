@@ -68,8 +68,9 @@
 			</tr>
 			<tr>
 				<td>
-					<button type="submit">Submit</button>
-					<button type="reset">Cancel</button>
+					<button type="submit">Submit</button> <input type="button"
+					onclick="location.href='${pageContext.request.contextPath}/';"
+					value="Cancel" />
 				</td>
 			</tr>
 		</table>

@@ -18,7 +18,7 @@ public class UserForm {
     @NotBlank
     @Pattern(regexp = "((?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!?@#$%]).{6,20})", message = ""
             + "Password should consist of 6 to 20 characters and should contain "
-            + "1 lowercase, 1 uppercase, 1 special symbol (!?@#$%)")
+            + "1 digit, 1 lowercase, 1 uppercase, 1 special symbol (!?@#$%)")
     private String password;
 
     @NotBlank

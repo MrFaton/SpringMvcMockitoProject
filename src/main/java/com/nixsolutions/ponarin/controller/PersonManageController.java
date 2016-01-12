@@ -1,11 +1,9 @@
 package com.nixsolutions.ponarin.controller;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -33,114 +31,110 @@ public class PersonManageController {
     private UserUtils userUtils;
 
     @RequestMapping(value = "/admin/create", method = RequestMethod.GET)
-    public String showCreateForm(ModelMap model) {
-        UserForm userForm = new UserForm();
-        model.addAttribute("userForm", userForm);
-        return View.FROM_CREATE_EDIT;
-    }
-
-    @RequestMapping(value = "/admin/create", method = RequestMethod.POST)
-    public ModelAndView create(
-            @ModelAttribute("userForm") @Valid UserForm userForm,
-            BindingResult result) {
-
+    public ModelAndView showCreateForm() {
         ModelAndView model = new ModelAndView();
+        UserForm userForm = new UserForm();
         model.addObject("userForm", userForm);
-
-        if (result.hasErrors()) {
-            userUtils.resetPasswords(userForm);
-            model.setViewName(View.FROM_CREATE_EDIT);
-            return model;
-        }
-
-        if (userUtils.isLoginExists(userForm.getLogin())) {
-            userUtils.resetPasswords(userForm);
-            result.rejectValue("login", "", "Login already exists");
-            model.setViewName(View.FROM_CREATE_EDIT);
-            return model;
-        }
-
-        if (userUtils.isEmailExists(userForm)) {
-            userUtils.resetPasswords(userForm);
-            result.rejectValue("email", "", "Email already exists");
-            model.setViewName(View.FROM_CREATE_EDIT);
-            return model;
-        }
-
-        Role role = roleDao.findByName(userForm.getRole());
-
-        userDao.create(userUtils.getUserByForm(userForm, role));
-        model.setViewName("redirect:/");
+        model.addObject("action", "create");
+        model.setViewName(View.FROM_CREATE_EDIT);
         return model;
     }
 
     @RequestMapping(value = "/admin/edit", method = RequestMethod.GET)
-    public String showEditForm(ModelMap model,
+    public String editGet() {
+        return View.PAGE_REDIRECT_MAIN;
+    }
+
+    @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
+    public ModelAndView showEditForm(
             @RequestParam("person") String personLogin) {
-
-        model.addAttribute("edit", true);
-
-        if (personLogin == null || personLogin.length() == 0) {
-            model.addAttribute("error", "No passed person loggin");
-            return View.FROM_CREATE_EDIT;
-        }
+        ModelAndView model = new ModelAndView();
+        model.addObject("action", "update");
 
         User user = userDao.findByLogin(personLogin);
         UserForm userForm = userUtils.getFormByUser(user);
 
-        model.addAttribute("userForm", userForm);
-        return View.FROM_CREATE_EDIT;
+        model.addObject("userForm", userForm);
+        model.setViewName(View.FROM_CREATE_EDIT);
+        return model;
     }
 
-    @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
-    public ModelAndView edit(
-            @ModelAttribute("userForm") @Valid UserForm userForm,
-            BindingResult result) {
+    @RequestMapping(value = "/admin/manage", method = RequestMethod.GET)
+    public String manageGet() {
+        return View.PAGE_REDIRECT_MAIN;
+    }
 
+    @RequestMapping(value = "/admin/manage", method = RequestMethod.POST)
+    public ModelAndView manage(
+            @ModelAttribute("userForm") @Valid UserForm userForm,
+            BindingResult result, @RequestParam("action") String action) {
         ModelAndView model = new ModelAndView();
-        model.addObject("edit", true);
         model.addObject("userForm", userForm);
+        model.addObject("action", action);
 
         if (result.hasErrors()) {
+            resetPasswords(userForm, action);
             model.setViewName(View.FROM_CREATE_EDIT);
             return model;
         }
 
         if (userUtils.isEmailExists(userForm)) {
+            resetPasswords(userForm, action);
             result.rejectValue("email", "", "Email already exists");
             model.setViewName(View.FROM_CREATE_EDIT);
             return model;
         }
 
-        Role role = roleDao.findByName(userForm.getRole());
+        switch (action) {
+        case "create": {
+            if (userUtils.isLoginExists(userForm.getLogin())) {
+                userUtils.resetPasswords(userForm);
+                result.rejectValue("login", "", "Login already exists");
+                model.setViewName(View.FROM_CREATE_EDIT);
+                return model;
+            }
+            Role role = roleDao.findByName(userForm.getRole());
+            userDao.create(userUtils.getUserByForm(userForm, role));
+            break;
+        }
+        case "update": {
+            Role role = roleDao.findByName(userForm.getRole());
+            User user = userUtils.getUserByForm(userForm, role);
+            User dbUser = userDao.findByLogin(user.getLogin());
 
-        User user = userUtils.getUserByForm(userForm, role);
-        User dbUser = userDao.findByLogin(user.getLogin());
-        user.setId(dbUser.getId());
+            if (dbUser == null) {
+                model.setViewName(View.PAGE_REDIRECT_MAIN);
+                return model;
+            }
 
-        userDao.update(user);
+            user.setId(dbUser.getId());
+            userDao.update(user);
+            model.clear();
+        }
+        default:
+        }
 
-        model.setViewName("redirect:/");
+        model.setViewName(View.PAGE_REDIRECT_MAIN);
         return model;
     }
 
     @RequestMapping(value = "/admin/delete", method = RequestMethod.GET)
-    public ModelAndView delete(@RequestParam("person") String personLogin,
-            HttpServletRequest request) {
+    public String getDelete() {
+        return View.PAGE_REDIRECT_MAIN;
+    }
 
-        ModelAndView model = new ModelAndView();
-
-        if (personLogin == null || personLogin.length() == 0) {
-            model.addObject("error", "No passed person loggin");
-            model.setViewName(View.FROM_CREATE_EDIT);
-            return model;
-        }
-
+    @RequestMapping(value = "/admin/delete", method = RequestMethod.POST)
+    public String delete(@RequestParam("person") String personLogin) {
         User user = userDao.findByLogin(personLogin);
+        if (user != null) {
+            userDao.remove(user);
+        }
+        return View.PAGE_REDIRECT_MAIN;
+    }
 
-        userDao.remove(user);
-
-        model.setViewName("redirect:/");
-        return model;
+    private void resetPasswords(UserForm userForm, String action) {
+        if (action.equals("create")) {
+            userUtils.resetPasswords(userForm);
+        }
     }
 }

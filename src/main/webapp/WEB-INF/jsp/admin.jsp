@@ -6,6 +6,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <style>
+form, form div {
+	display: inline;
+	padding: 2px;
+}
+
 table, th, td {
 	border-collapse: collapse;
 	border: 2px solid black;

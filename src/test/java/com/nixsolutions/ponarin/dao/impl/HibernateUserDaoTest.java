@@ -1,47 +1,46 @@
 package com.nixsolutions.ponarin.dao.impl;
 
-import static org.dbunit.Assertion.assertEqualsIgnoreCols;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
-import org.dbunit.dataset.ITable;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
+import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
+import org.springframework.test.context.transaction.TransactionalTestExecutionListener;
 
+import com.github.springtestdbunit.DbUnitTestExecutionListener;
+import com.github.springtestdbunit.annotation.DatabaseSetup;
+import com.github.springtestdbunit.annotation.ExpectedDatabase;
+import com.github.springtestdbunit.assertion.DatabaseAssertionMode;
 import com.nixsolutions.ponarin.dao.UserDao;
 import com.nixsolutions.ponarin.entity.Role;
 import com.nixsolutions.ponarin.entity.User;
-import com.nixsolutions.ponarin.utils.DbTestHelper;
 
 @RunWith(SpringJUnit4ClassRunner.class)
+@DatabaseSetup("/dataset/user/common.xml")
 @ContextConfiguration(locations = ("classpath:/app-context-test.xml"))
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class,
+        DirtiesContextTestExecutionListener.class,
+        TransactionalTestExecutionListener.class,
+        DbUnitTestExecutionListener.class })
 public class HibernateUserDaoTest {
-    private static final String DATASET_COMMON = "dataset/user/common.xml";
-    private static final String TABLE_EMPTY = "dataset/user/empty.xml";
-    private static final String TABLE_NAME = "USER";
-    private static final String[] IGNORE_COLS = { "USER_ID" };
-
     private User[] users;
     private Role[] roles;
 
     @Autowired
     private UserDao userDao;
 
-    @Autowired
-    private DbTestHelper dbTestHelper;
-
     @Before
     public void setUp() throws Exception {
-        dbTestHelper.fill(DATASET_COMMON);
-
         // Configure Roles
         roles = new Role[3];
 
@@ -107,19 +106,34 @@ public class HibernateUserDaoTest {
         userDao.create(null);
     }
 
-    @Test
-    public void testCreate() throws Exception {
-        dbTestHelper.fill(TABLE_EMPTY);
-
-        String afterCreate = "dataset/user/afterCreate.xml";
-
+    @Test(expected = RuntimeException.class)
+    @DatabaseSetup("/dataset/user/empty.xml")
+    public void testCreateWithoutRole() throws Exception {
+        roles[1].setId(100);
+        roles[1].setName("role100");
+        users[1].setRole(roles[1]);
         userDao.create(users[1]);
+    }
 
-        ITable expected = dbTestHelper.getTableFromFile(TABLE_NAME,
-                afterCreate);
-        ITable actual = dbTestHelper.getTableFromSchema(TABLE_NAME);
+    @Test(expected = RuntimeException.class)
+    public void testCreateLoginDublicate() {
+        users[0].setId(null);
+        users[0].setEmail("someEmail");
+        userDao.create(users[0]);
+    }
 
-        assertEqualsIgnoreCols(expected, actual, IGNORE_COLS);
+    @Test(expected = RuntimeException.class)
+    public void testCreateEmailDublicate() {
+        users[0].setId(null);
+        users[0].setLogin("someLogin");
+        userDao.create(users[0]);
+    }
+
+    @Test
+    @DatabaseSetup("/dataset/user/empty.xml")
+    @ExpectedDatabase(table = "User", value = "/dataset/user/afterCreate.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
+    public void testCreate() throws Exception {
+        userDao.create(users[1]);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -128,9 +142,8 @@ public class HibernateUserDaoTest {
     }
 
     @Test
+    @ExpectedDatabase(table = "User", value = "/dataset/user/afterUpdate.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void testUpdate() throws Exception {
-        String afterUpdate = "dataset/user/afterUpdate.xml";
-
         User user = new User();
 
         user.setId(users[0].getId());
@@ -143,19 +156,9 @@ public class HibernateUserDaoTest {
         GregorianCalendar calendar = new GregorianCalendar(1950, 2, 7);
         user.setBirthDay(new Date(calendar.getTimeInMillis()));
 
-        Role role = new Role();
-        role.setId(3);
-        role.setName("role3");
-        user.setRole(role);
+        user.setRole(roles[2]);
 
         userDao.update(user);
-
-        ITable expected = dbTestHelper.getTableFromFile(TABLE_NAME,
-                afterUpdate);
-        ITable actual = dbTestHelper.getTableFromSchema(TABLE_NAME);
-
-        assertEqualsIgnoreCols(expected, actual, IGNORE_COLS);
-
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -164,16 +167,9 @@ public class HibernateUserDaoTest {
     }
 
     @Test
+    @ExpectedDatabase(table = "User", value = "/dataset/user/afterRemove.xml", assertionMode = DatabaseAssertionMode.NON_STRICT)
     public void testRemove() throws Exception {
-        String afterRemove = "dataset/user/afterRemove.xml";
-
         userDao.remove(users[2]);
-
-        ITable expected = dbTestHelper.getTableFromFile(TABLE_NAME,
-                afterRemove);
-        ITable actual = dbTestHelper.getTableFromSchema(TABLE_NAME);
-
-        assertEqualsIgnoreCols(expected, actual, IGNORE_COLS);
     }
 
     @Test

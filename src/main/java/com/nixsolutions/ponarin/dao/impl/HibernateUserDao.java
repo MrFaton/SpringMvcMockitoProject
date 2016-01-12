@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nixsolutions.ponarin.dao.UserDao;
@@ -22,24 +21,24 @@ public class HibernateUserDao implements UserDao {
             .getLogger(HibernateUserDao.class);
 
     @Autowired
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void create(User user) {
         logger.trace("create " + user);
         sessionFactory.getCurrentSession().save(user);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void update(User user) {
         logger.trace("update " + user);
         sessionFactory.getCurrentSession().update(user);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void remove(User user) {
         logger.trace("remove " + user);
         sessionFactory.getCurrentSession().delete(user);
@@ -47,7 +46,7 @@ public class HibernateUserDao implements UserDao {
 
     @Override
     @SuppressWarnings("unchecked")
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         logger.trace("find all users");
 
@@ -57,7 +56,7 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional()
     public User findByLogin(String login) {
         logger.trace("find user by login = " + login);
 
@@ -68,7 +67,7 @@ public class HibernateUserDao implements UserDao {
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional()
     public User findByEmail(String email) {
         logger.trace("find user by email = " + email);
 

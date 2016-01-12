@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.nixsolutions.ponarin.dao.RoleDao;
@@ -20,31 +19,31 @@ public class HibernateRoleDao implements RoleDao {
             .getLogger(HibernateRoleDao.class);
 
     @Autowired
-    SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void create(Role role) {
         logger.trace("create " + role);
         sessionFactory.getCurrentSession().save(role);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void update(Role role) {
         logger.trace("update " + role);
         sessionFactory.getCurrentSession().update(role);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, rollbackFor = Exception.class)
+    @Transactional()
     public void remove(Role role) {
         logger.trace("remove " + role);
         sessionFactory.getCurrentSession().delete(role);
     }
 
     @Override
-    @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
+    @Transactional()
     public Role findByName(String name) {
         logger.trace("searching for role by name = " + name);
 

@@ -80,6 +80,7 @@ public class RegistrationController {
                 challengeField, responseField);
 
         if (!reCaptchaResponse.isValid()) {
+            userUtils.resetPasswords(userForm);
             model.addObject("invalidCaptcha", "Captcha is invalid");
             model.setViewName(View.FORM_REG);
             return model;
@@ -91,6 +92,7 @@ public class RegistrationController {
 
         userDao.create(userUtils.getUserByForm(userForm, role));
         model.setViewName(View.FROM_REG_SUCCESS);
+
         return model;
     }
 }

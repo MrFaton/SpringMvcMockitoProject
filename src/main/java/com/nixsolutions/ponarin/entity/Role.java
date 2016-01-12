@@ -12,7 +12,7 @@ import javax.persistence.Table;
 import com.google.common.base.Objects;
 
 @Entity
-@Table(name = "ROLE", schema = "TRAINEESHIP_DB")
+@Table(name = "ROLE")
 public class Role implements Serializable {
     private static final long serialVersionUID = 1L;
 

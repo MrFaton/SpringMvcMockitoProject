@@ -7,4 +7,5 @@ public class View {
     public static final String FROM_CREATE_EDIT = "create_edit_form";
     public static final String PAGE_ADMIN = "admin";
     public static final String PAGE_USER = "user";
+    public static final String PAGE_REDIRECT_MAIN = "redirect:/";
 }
