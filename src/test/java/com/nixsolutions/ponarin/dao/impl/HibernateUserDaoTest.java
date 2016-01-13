@@ -187,6 +187,18 @@ public class HibernateUserDaoTest {
     }
 
     @Test
+    public void testFindByIdNonExists() {
+        User user = userDao.findById(1000L);
+        Assert.assertNull(user);
+    }
+
+    @Test
+    public void testFindById() {
+        User user = userDao.findById(1);
+        Assert.assertNotNull(user);
+    }
+
+    @Test
     public void testFindByLogin() {
         User user = userDao.findByLogin(users[1].getLogin());
         Assert.assertEquals("Users must equals", users[1], user);

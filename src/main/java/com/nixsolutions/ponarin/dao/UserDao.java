@@ -13,6 +13,8 @@ public interface UserDao {
 
     List<User> findAll();
 
+    User findById(long id);
+
     User findByLogin(String login);
 
     User findByEmail(String email);

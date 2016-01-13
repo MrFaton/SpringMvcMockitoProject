@@ -20,7 +20,7 @@ public class UsersTableTag extends SimpleTagSupport {
         PageContext pageContext = (PageContext) getJspContext();
         String editControllerPath = pageContext.getServletContext()
                 .getContextPath() + "/admin/edit";
-        String dbOperationControllerPath = pageContext.getServletContext()
+        String deleteControllerPath = pageContext.getServletContext()
                 .getContextPath() + "/admin/delete";
         JspWriter out = pageContext.getOut();
         StringBuilder strBuilder = new StringBuilder();
@@ -46,28 +46,13 @@ public class UsersTableTag extends SimpleTagSupport {
             strBuilder.append("<td>" + user.getRole().getName() + "</td>");
 
             strBuilder.append("<td>");
-            strBuilder.append("<form action=\"" + editControllerPath
-                    + "\" method=\"post\">");
-            strBuilder.append("<div>");
-            strBuilder.append(
-                    "<input type=\"hidden\" name=\"action\" value=\"edit\"/>");
-            strBuilder.append("<input type=\"hidden\" name=\"person\" value=\""
-                    + user.getLogin() + "\"/>");
-            strBuilder.append("<input type=\"submit\" value=\"Edit\"/>");
-            strBuilder.append("</div>");
-            strBuilder.append("</form>");
+            strBuilder.append("<a href=\"" + editControllerPath);
+            strBuilder.append("?person_id=" + user.getId() + "\">Edit</a>");
 
-            strBuilder.append("<form action=\"" + dbOperationControllerPath
-                    + "\" method=\"post\">");
-            strBuilder.append("<div>");
-            strBuilder.append(
-                    "<input type=\"hidden\" name=\"action\" value=\"delete\"/>");
-            strBuilder.append("<input type=\"hidden\" name=\"person\" value=\""
-                    + user.getLogin() + "\"/>");
-            strBuilder.append("<input type=\"submit\" value=\"Delete\" "
-                    + "onclick=\"return confirm('Are you sure?');\"/>");
-            strBuilder.append("</div>");
-            strBuilder.append("</form>");
+            strBuilder.append("  ");
+
+            strBuilder.append("<a href=\"" + deleteControllerPath);
+            strBuilder.append("?person_id=" + user.getId() + "\">Delete</a>");
             strBuilder.append("</td>");
 
             strBuilder.append("</tr>");

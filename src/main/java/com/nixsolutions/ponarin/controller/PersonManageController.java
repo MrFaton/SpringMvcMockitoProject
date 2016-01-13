@@ -36,105 +36,89 @@ public class PersonManageController {
         UserForm userForm = new UserForm();
         model.addObject("userForm", userForm);
         model.addObject("action", "create");
-        model.setViewName(View.FROM_CREATE_EDIT);
+        model.setViewName(View.FROM_CREATE);
         return model;
     }
 
-    @RequestMapping(value = "/admin/edit", method = RequestMethod.GET)
-    public String editGet() {
-        return View.PAGE_REDIRECT_MAIN;
-    }
-
-    @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
-    public ModelAndView showEditForm(
-            @RequestParam("person") String personLogin) {
-        ModelAndView model = new ModelAndView();
-        model.addObject("action", "update");
-
-        User user = userDao.findByLogin(personLogin);
-        UserForm userForm = userUtils.getFormByUser(user);
-
-        model.addObject("userForm", userForm);
-        model.setViewName(View.FROM_CREATE_EDIT);
-        return model;
-    }
-
-    @RequestMapping(value = "/admin/manage", method = RequestMethod.GET)
-    public String manageGet() {
-        return View.PAGE_REDIRECT_MAIN;
-    }
-
-    @RequestMapping(value = "/admin/manage", method = RequestMethod.POST)
-    public ModelAndView manage(
+    @RequestMapping(value = "/admin/create", method = RequestMethod.POST)
+    public ModelAndView create(
             @ModelAttribute("userForm") @Valid UserForm userForm,
-            BindingResult result, @RequestParam("action") String action) {
+            BindingResult result) {
         ModelAndView model = new ModelAndView();
         model.addObject("userForm", userForm);
-        model.addObject("action", action);
 
         if (result.hasErrors()) {
-            resetPasswords(userForm, action);
-            model.setViewName(View.FROM_CREATE_EDIT);
+            userUtils.resetPasswords(userForm);
+            model.setViewName(View.FROM_CREATE);
             return model;
         }
-
+        if (userUtils.isLoginExists(userForm.getLogin())) {
+            userUtils.resetPasswords(userForm);
+            result.rejectValue("login", "", "Login already exists");
+            model.setViewName(View.FROM_CREATE);
+            return model;
+        }
         if (userUtils.isEmailExists(userForm)) {
-            resetPasswords(userForm, action);
+            userUtils.resetPasswords(userForm);
             result.rejectValue("email", "", "Email already exists");
-            model.setViewName(View.FROM_CREATE_EDIT);
+            model.setViewName(View.FROM_CREATE);
             return model;
         }
-
-        switch (action) {
-        case "create": {
-            if (userUtils.isLoginExists(userForm.getLogin())) {
-                userUtils.resetPasswords(userForm);
-                result.rejectValue("login", "", "Login already exists");
-                model.setViewName(View.FROM_CREATE_EDIT);
-                return model;
-            }
-            Role role = roleDao.findByName(userForm.getRole());
-            userDao.create(userUtils.getUserByForm(userForm, role));
-            break;
-        }
-        case "update": {
-            Role role = roleDao.findByName(userForm.getRole());
-            User user = userUtils.getUserByForm(userForm, role);
-            User dbUser = userDao.findByLogin(user.getLogin());
-
-            if (dbUser == null) {
-                model.setViewName(View.PAGE_REDIRECT_MAIN);
-                return model;
-            }
-
-            user.setId(dbUser.getId());
-            userDao.update(user);
-            model.clear();
-        }
-        default:
-        }
+        Role role = roleDao.findByName(userForm.getRole());
+        userDao.create(userUtils.getUserByForm(userForm, role));
 
         model.setViewName(View.PAGE_REDIRECT_MAIN);
         return model;
     }
 
-    @RequestMapping(value = "/admin/delete", method = RequestMethod.GET)
-    public String getDelete() {
-        return View.PAGE_REDIRECT_MAIN;
+    @RequestMapping(value = "/admin/edit", method = RequestMethod.GET)
+    public ModelAndView showEdit(@RequestParam("person_id") String idStr) {
+        ModelAndView model = new ModelAndView();
+        User user = userDao.findById(Integer.valueOf(idStr));
+        UserForm userForm = userUtils.getFormByUser(user);
+        model.addObject("userForm", userForm);
+        model.setViewName(View.FROM_EDIT);
+        return model;
     }
 
-    @RequestMapping(value = "/admin/delete", method = RequestMethod.POST)
-    public String delete(@RequestParam("person") String personLogin) {
-        User user = userDao.findByLogin(personLogin);
+    @RequestMapping(value = "/admin/edit", method = RequestMethod.POST)
+    public ModelAndView showEditForm(
+            @ModelAttribute("userForm") @Valid UserForm userForm,
+            BindingResult result) {
+        System.out.println("in edit post");
+        ModelAndView model = new ModelAndView();
+        model.addObject("userForm", userForm);
+
+        if (result.hasErrors()) {
+            model.setViewName(View.FROM_EDIT);
+            return model;
+        }
+        if (userUtils.isEmailExists(userForm)) {
+            result.rejectValue("email", "", "Email already exists");
+            model.setViewName(View.FROM_EDIT);
+            return model;
+        }
+        Role role = roleDao.findByName(userForm.getRole());
+        User user = userUtils.getUserByForm(userForm, role);
+        User dbUser = userDao.findByLogin(user.getLogin());
+
+        model.setViewName(View.PAGE_REDIRECT_MAIN);
+
+        if (dbUser == null) {
+            return model;
+        }
+
+        user.setId(dbUser.getId());
+        userDao.update(user);
+        return model;
+    }
+
+    @RequestMapping(value = "/admin/delete", method = RequestMethod.GET)
+    public String delete(@RequestParam("person_id") String idStr) {
+        User user = userDao.findById(Integer.valueOf(idStr));
         if (user != null) {
             userDao.remove(user);
         }
         return View.PAGE_REDIRECT_MAIN;
-    }
-
-    private void resetPasswords(UserForm userForm, String action) {
-        if (action.equals("create")) {
-            userUtils.resetPasswords(userForm);
-        }
     }
 }

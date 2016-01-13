@@ -1,24 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form"%>
 <%@ taglib prefix="sec"
 	uri="http://www.springframework.org/security/tags"%>
-<%@ taglib prefix="spring" uri="http://www.springframework.org/tags"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
-
-<c:set var="addOrEdit" />
-<c:if test="${action == 'create'}">
-	<c:set var="addOrEdit" value="Add " />
-</c:if>
-<c:if test="${action == 'update'}">
-	<c:set var="addOrEdit" value="Edit " />
-</c:if>
 <sec:authentication var="principal" property="principal" />
 <!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>${addOrEdit}User</title>
+<title>Add User</title>
 <style>
 .error {
 	color: red;
@@ -30,19 +20,13 @@
 		Admin ${principal.username} (<a
 			href="<c:url value="/j_spring_security_logout"/>">Logout</a>)
 	</p>
-	<h1>${addOrEdit}user</h1>
+	<h1>Add user</h1>
 	<br>
-	<form:form modelAttribute="userForm" method="POST" enctype="utf8"
-		action="${pageContext.request.contextPath}/admin/manage">
-		<input type="hidden" name="action" value="${action}" />
+	<form:form modelAttribute="userForm" method="POST" enctype="utf8">
 		<table align="left" border="0" cellpadding="2" cellspacing="5">
 			<tr>
 				<td><label>Login</label></td>
-				<td><c:if test="${action == 'create'}">
-						<form:input path="login" value="" />
-					</c:if> <c:if test="${action == 'update'}">
-						<form:input path="login" value="" readonly="true" />
-					</c:if></td>
+				<td><form:input path="login" value="" /></td>
 				<td><form:errors path="login" element="div" cssClass="error" /></td>
 			</tr>
 			<tr>
